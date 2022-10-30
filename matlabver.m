@@ -43,7 +43,7 @@ function headloss = headloss(data,L,S,z)
 	g_n = 9.80665;
 	S_f = S/L;
 	maxs = ones(1,5);
-	k = 0.025;
+	k = 2.5e-5;
 	for i = 1:5
 		m = max(data{i});
 		maxs(i) = m(2);
@@ -51,9 +51,9 @@ function headloss = headloss(data,L,S,z)
 	desflow = max(maxs);
 	n = 0.012*k^(1/6);
 
-	y =(2^0.25 / ((2*sqrt(1+z^2)-z)^(3/8))*(desflow*n / sqrt(S_f))^3/8) * 1.5;
-	b=2*y*(sqrt(1+z^2)-z);
-	t=2*y*(sqrt(1+z^2));
+	y =(2^0.25 / ((2*sqrt(1+z^2)-z)^(3/8))*(desflow*n / sqrt(S_f))^3/8) * 1.5
+	b=2*y*(sqrt(1+z^2)-z)
+	t=2*y*(sqrt(1+z^2))
 
 	A = y/2*(b+t);
 	perim = b+2*(hypot(t-b,y));
