@@ -1,8 +1,5 @@
 %%% Þetta er dæmi um hvernig þetta væri gert í matlab. averu útreikningar voru gerðir í Julia
 
-
-
-
 sitestr = webread("https://www.landsvirkjun.is/rennsli-um-yfirfall-halslons");
 arrReg = '\[(\[\d+,\d*[.]*\d*\][,\]])+';
 
@@ -30,14 +27,50 @@ for i = 2:m(2)
 end
 hold off;
 
-h = headloss(data,35000,43,0.2)
+h1 = headloss(data,35000,43,0.2);
+h2 = headloss(data,7000,560,0.2);
+h = {};
+for i = 1:5
+	h{i}= h1{i} + h2{i};
+end
 
+% scali ekki réttur, er réttur í Julia
 plot(h{1}(:,1),h{1}(:,2));
 hold on;
 for i = 2:5
-	plot(h{i}(:,1),h{i}(:,2))
+	plot(h{i}(:,1),h{i}(:,2)) 
 end
 hold off;
+
+flow = {};
+for i = 1:5
+	flow{i} = data{i} .* 1000;
+end
+
+eta = 0.7533;
+g_n = 9.80665;
+W = {};
+for i = 1:5
+	W{i} = flow{i}(:,2) .* g_n .* h{i}(:,2) .* eta .* 0.0000002778 .* 60 .* 60 .* 24;
+end
+
+
+
+w_ari = [];
+for i = 1:5
+	w_ari(i) = sum(W{i});
+end
+w_ari
+
+bar(w_ari)
+
+
+vetni = [];
+for i = 1:5
+	vetni(i) = w_ari(i)/48/1000
+end
+
+bar(vetni)
 
 function headloss = headloss(data,L,S,z)
 	g_n = 9.80665;
