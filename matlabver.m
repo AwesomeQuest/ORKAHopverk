@@ -1,3 +1,8 @@
+%%% Þetta er dæmi um hvernig þetta væri gert í matlab. averu útreikningar voru gerðir í Julia
+
+
+
+
 sitestr = webread("https://www.landsvirkjun.is/rennsli-um-yfirfall-halslons");
 arrReg = '\[(\[\d+,\d*[.]*\d*\][,\]])+';
 
@@ -25,6 +30,55 @@ for i = 2:m(2)
 end
 hold off;
 
-function headloss = headloss(L,S,z)
-	S_f = S/L
+h = headloss(data,35000,43,0.2)
+
+plot(h{1}(:,1),h{1}(:,2));
+hold on;
+for i = 2:5
+	plot(h{i}(:,1),h{i}(:,2))
+end
+hold off;
+
+function headloss = headloss(data,L,S,z)
+	g_n = 9.80665;
+	S_f = S/L;
+	maxs = ones(1,5);
+	k = 0.025;
+	for i = 1:5
+		m = max(data{i});
+		maxs(i) = m(2);
+	end
+	desflow = max(maxs);
+	n = 0.012*k^(1/6);
+
+	y =(2^0.25 / ((2*sqrt(1+z^2)-z)^(3/8))*(desflow*n / sqrt(S_f))^3/8) * 1.5;
+	b=2*y*(sqrt(1+z^2)-z);
+	t=2*y*(sqrt(1+z^2));
+
+	A = y/2*(b+t);
+	perim = b+2*(hypot(t-b,y));
+
+	U = {};
+	for i = 1:5
+		U{i} = data{i} ./ A;
+	end
+
+	D = 4*A/perim;
+
+	v = 1.52e-6;
+
+	Re = {};
+	for i = 1:5
+		Re{i} = U{i} .* D ./ v;
+	end
+
+	f = {};
+	for i = 1:5
+		f{i} = 0.25 ./ log10(k ./ (3.7 .* D) + 5.74 ./ Re{i} .^ 0.9) .^ 2;
+	end
+
+	headloss = {};
+	for i = 1:5
+		headloss{i} = f{i} .* L ./ D .* U{i}.^2 ./ 2*g_n;
+	end
 end
